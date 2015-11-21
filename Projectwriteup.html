@@ -160,12 +160,13 @@ traindata &lt;- traindata[,-highcorr]</code></pre>
 train &lt;- traindata[intrain,]
 test &lt;- traindata[-intrain,]</code></pre>
 <ol start="2" style="list-style-type: decimal">
-<li>We use the SVM algorithm to contruct the model hypothesis</li>
+<li>We use the SVM algorithm to contruct the model hypothesis.SVM algorithm internally cross validates the model parameters with the training data. Hence we get an unbiased classification from the linear SVM implementation.</li>
 </ol>
 <pre><code>## Loading required package: kernlab</code></pre>
 <ol start="3" style="list-style-type: decimal">
 <li>We predict the test data using the trained model and build the confusion matrix to calculate the out of sample error</li>
 </ol>
+<p>The out of sample error should be minimum once the data has been cleaned and model can effectively classify on the test data.</p>
 <pre class="r"><code>predictions &lt;- predict(modelone, newdata = test)
 confusionMatrix(predictions,test$classe)</code></pre>
 <pre><code>## Confusion Matrix and Statistics
@@ -173,32 +174,36 @@ confusionMatrix(predictions,test$classe)</code></pre>
 ##           Reference
 ## Prediction    A    B    C    D    E
 ##          A 1674    0    0    0    0
-##          B    0 1138    0    0    0
-##          C    0    1 1026    0    0
+##          B    0 1139    0    0    0
+##          C    0    0 1026    0    0
 ##          D    0    0    0  964    0
 ##          E    0    0    0    0 1082
 ## 
 ## Overall Statistics
 ##                                      
-##                Accuracy : 0.9998     
-##                  95% CI : (0.9991, 1)
+##                Accuracy : 1          
+##                  95% CI : (0.9994, 1)
 ##     No Information Rate : 0.2845     
 ##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16  
 ##                                      
-##                   Kappa : 0.9998     
+##                   Kappa : 1          
 ##  Mcnemar's Test P-Value : NA         
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            1.0000   0.9991   1.0000   1.0000   1.0000
-## Specificity            1.0000   1.0000   0.9998   1.0000   1.0000
-## Pos Pred Value         1.0000   1.0000   0.9990   1.0000   1.0000
-## Neg Pred Value         1.0000   0.9998   1.0000   1.0000   1.0000
+## Sensitivity            1.0000   1.0000   1.0000   1.0000   1.0000
+## Specificity            1.0000   1.0000   1.0000   1.0000   1.0000
+## Pos Pred Value         1.0000   1.0000   1.0000   1.0000   1.0000
+## Neg Pred Value         1.0000   1.0000   1.0000   1.0000   1.0000
 ## Prevalence             0.2845   0.1935   0.1743   0.1638   0.1839
-## Detection Rate         0.2845   0.1934   0.1743   0.1638   0.1839
-## Detection Prevalence   0.2845   0.1934   0.1745   0.1638   0.1839
-## Balanced Accuracy      1.0000   0.9996   0.9999   1.0000   1.0000</code></pre>
+## Detection Rate         0.2845   0.1935   0.1743   0.1638   0.1839
+## Detection Prevalence   0.2845   0.1935   0.1743   0.1638   0.1839
+## Balanced Accuracy      1.0000   1.0000   1.0000   1.0000   1.0000</code></pre>
+</div>
+<div id="conclusion" class="section level2">
+<h2>Conclusion</h2>
+<p>With this prediction method, we are able to achieve a high accuracy on hold out sample. We can use this model to classify movements for these six participants based on their device metrics.</p>
 </div>
 </div>
 

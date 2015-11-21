@@ -106,7 +106,7 @@ train <- traindata[intrain,]
 test <- traindata[-intrain,]
 ```
 
-2. We use the SVM algorithm to contruct the model hypothesis
+2. We use the SVM algorithm to contruct the model hypothesis.SVM algorithm internally cross validates the model parameters with the training data. Hence we get an unbiased classification from the linear SVM implementation.
 
 ```{r, echo=FALSE,warning=FALSE}
 modelone <- train(classe ~ . , method = "svmLinear", data = train)
@@ -114,7 +114,13 @@ modelone <- train(classe ~ . , method = "svmLinear", data = train)
 
 3. We predict the test data using the trained model and build the confusion matrix to calculate the out of sample error
 
+The out of sample error should be minimum once the data has been cleaned and model can effectively classify on the test data. 
+
 ```{r}
 predictions <- predict(modelone, newdata = test)
 confusionMatrix(predictions,test$classe)
 ```
+
+##Conclusion
+With this prediction method, we are able to achieve a high accuracy on hold out sample. We can use this model to classify movements for these six participants based on their device metrics.
+

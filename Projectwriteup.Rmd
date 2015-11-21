@@ -1,0 +1,120 @@
+---
+title: "Predicting Movements in Samsung Devices"
+author: "Vinay"
+date: "November 19, 2015"
+output: html_document
+---
+
+The project requires us to predict movement of six individuals based on the data captured by their samsung devices. The data set includes almost 20000 observations with 159 predictor variables.
+
+The predictors are numerical and capture movement in particular direction i.e. roll , yaw etc.
+
+##Reading data and Descriptive summary
+We read the data and look at the data structure. A summary of the data tells us that the data for large number of variables is very sparse.
+
+
+```{r}
+rm(list = ls(all= TRUE))
+library(caret)
+traindata <- read.csv("C:/Users/Vinay/Desktop/Assignments to be done/Practical Machine learning/pml-training.csv", sep = ",", header = TRUE)
+
+olddata <- traindata
+#str(olddata)
+#summary(olddata)
+```
+
+
+#Data Cleaning
+
+1. As dicussed the dataset contains a large number of sparse data. These predictor contain a large number of NA values. Here I decide to remove these predictors.
+
+```{r}
+nlv <- nearZeroVar(traindata)
+nlv
+traindata <- traindata[,-nlv]
+```
+
+2. I also look at the density of the predictor variables. I remove all predictors with more than 97 percent NA values
+
+```{r}
+ncol(traindata)
+categorical <- c(2,5,124)
+numerical <- setdiff(c(1:124), categorical)
+empty = NULL
+len <- length(traindata$X)
+
+for (i in numerical){
+  traindata[,i] <- as.integer(traindata[,i])
+  
+  if (sum(is.na(traindata[,i])) >= 0.97*len)
+  {
+    empty[length(empty) + 1] = i
+  }
+}
+
+empty
+traindata <- traindata[,-empty]
+```
+
+3. I remove the 12th column too as it contains all zeros
+
+```{r}
+ncol(traindata)
+categorical <- c(2,5,59)
+numerical <- setdiff(c(1:59), categorical)
+traindata <- traindata[,-12]
+numerical <- ncol(traindata)
+numerical <- setdiff(1:58, c(12))
+
+categorical <- c(2,5,58)
+numerical <- setdiff(1:58, categorical)
+numerical
+```
+
+4. Remove Highly Correlated predictors
+
+We remove the highly correlated predictors. Our cutoff is 0.85. We use the caret package to get the indices of the columns to remove.
+
+```{r}
+CorrMatX <- round(cor(traindata[,numerical]),2)
+#CorrMatX
+
+highcorr <- findCorrelation(CorrMatX, cutoff = 0.85,verbose = FALSE)
+traindata <- traindata[,-highcorr]
+```
+
+## Exploratory Study
+WE try to study the relationships among these predictor variables and the target variable by looking at the pair wise plots. These plots allow us to see the variables and how effectively they can separate the target variable.
+
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE, warning=FALSE}
+pairs(traindata[,20:25], col = traindata$classe, na.rm = TRUE,
+      xlim = c(-5,5), ylim = c(-5,5))
+pairs(traindata[,25:30], col = traindata$classe, na.rm = TRUE,
+      xlim = c(-5,5), ylim = c(-5,5))
+```
+
+## Training data and Model Building
+
+1. We separate the data set  into training and testing dataset i.e. 70 percent and 30 percent.
+
+```{r}
+intrain <- createDataPartition(traindata$classe, p=0.7, list = FALSE)
+train <- traindata[intrain,]
+test <- traindata[-intrain,]
+```
+
+2. We use the SVM algorithm to contruct the model hypothesis
+
+```{r, echo=FALSE,warning=FALSE}
+modelone <- train(classe ~ . , method = "svmLinear", data = train)
+```
+
+3. We predict the test data using the trained model and build the confusion matrix to calculate the out of sample error
+
+```{r}
+predictions <- predict(modelone, newdata = test)
+confusionMatrix(predictions,test$classe)
+```
